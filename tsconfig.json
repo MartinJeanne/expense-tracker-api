@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "module": "CommonJS",
+        "outDir": "dist",
+        "target": "ES2023",
+        "lib": ["ES6"],
+        "strict": true,
+        "esModuleInterop": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true
+    },
+    "include": [
+        "src/**/*"
+    ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "expense-tracker-api",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "npx tsc && node dist/index.js",
+    "build": "npx tsc",
+    "dev": "nodemon src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "expense-tracker": "./bin/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.5.2",
+    "nodemon": "^3.1.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mysql2": "^3.11.0",
+    "reflect-metadata": "^0.2.2",
+    "typeorm": "^0.3.20"
+  }
+}
