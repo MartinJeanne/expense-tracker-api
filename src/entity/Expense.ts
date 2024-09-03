@@ -6,7 +6,7 @@ export default class Expense {
     private id: number;
     @Column()
     private description: string;
-    @Column("double")
+    @Column('double')
     private amount: number;
     @Column()
     private createdAt: Date;
