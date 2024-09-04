@@ -1,17 +1,22 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
+type ExpenseRaw = {
+    description: string;
+    amount: number;
+}
+
 @Entity()
 export default class Expense {
     @PrimaryGeneratedColumn()
-    private id: number;
+    id: number;
     @Column()
-    private description: string;
+    description: string;
     @Column('double')
-    private amount: number;
+    amount: number;
     @Column()
-    private createdAt: Date;
+    createdAt: Date;
     @Column()
-    private updatedAt: Date;
+    updatedAt: Date;
 
     constructor(description: string, amount: number) {
         this.id = 0; // Managed by TypeORM
@@ -19,6 +24,18 @@ export default class Expense {
         this.amount = amount;
         this.createdAt = new Date();
         this.updatedAt = new Date();
+    }
+
+    public static isRaw(value: unknown): value is ExpenseRaw {
+        if (!value || typeof value !== 'object') {
+            return false
+        }
+        const object = value as Record<string, unknown>;
+
+        return (
+            typeof object.description === 'string' &&
+            typeof object.amount === 'number'
+        )
     }
 
     toString(): string {

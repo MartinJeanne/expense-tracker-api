@@ -1,21 +1,11 @@
 import express from 'express';
-import Expense from './entity/Expense';
-import { AppDataSource } from './AppDataSource';
+import routes from './routes';
+
 const app = express();
+const port = 3000;
 
-app.get('/', function (req, res) {
-    res.send('Hello World how are you?')
+app.use('/api/expenses', routes);
+
+app.listen(port, () => {
+    console.log(`API listening on port ${port}`);
 });
-
-app.listen(3000);
-
-
-async function test() {
-    const expense = new Expense('coucou', 5);
-    const dt = await AppDataSource.getInstance();
-    const expenseRepo = dt.getRepository(Expense);
-    const savedExpenses = await expenseRepo.find();
-    console.log("All photos from the db: ", savedExpenses)
-}
-
-test();

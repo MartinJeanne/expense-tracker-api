@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { DataSource } from "typeorm";
+import { DataSource, EntityTarget, ObjectLiteral, Repository } from "typeorm";
 import Expense from './entity/Expense';
 
 export class AppDataSource {
@@ -38,5 +38,10 @@ export class AppDataSource {
         this.instance = new AppDataSource();
         await this.instance.initialize();
         return this.instance.dataSource;
+    }
+
+    static async getRepository<Entity extends ObjectLiteral>(entity: EntityTarget<Entity>): Promise<Repository<Entity>> {
+        const instance = await this.getInstance();
+        return instance.getRepository(entity);
     }
 }
