@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { DataSource, EntityTarget, ObjectLiteral, Repository } from "typeorm";
-import Expense from './entity/Expense';
+import Expense from './model/Expense';
 
 export class AppDataSource {
     private static instance: AppDataSource;

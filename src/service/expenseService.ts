@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { AppDataSource } from '../AppDataSource';
-import Expense from '../entity/Expense';
+import Expense from '../model/Expense';
 
 export async function getExpenses(req: Request, res: Response) {
     const expenseRepo = await AppDataSource.getRepository(Expense);
