@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import { DataSource, EntityTarget, ObjectLiteral, Repository } from "typeorm";
 import Expense from './model/Expense';
+import User from "./model/User";
 
 export class AppDataSource {
     private static instance: AppDataSource;
@@ -15,7 +16,7 @@ export class AppDataSource {
             username: "root",
             password: "root",
             database: "expense-tracker",
-            entities: [Expense],
+            entities: [Expense, User],
             synchronize: true,
             logging: false,
         });

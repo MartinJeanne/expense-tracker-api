@@ -5,7 +5,7 @@ import { login, register } from '../service/authService';
 const authController = express.Router();
 authController.use(bodyParser.json());
 
-authController.get('/register', async (req, res) => {
+authController.post('/register', async (req, res) => {
     await register(req, res);
 });
 
