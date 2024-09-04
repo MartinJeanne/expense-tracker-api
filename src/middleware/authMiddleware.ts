@@ -4,10 +4,10 @@ import { Request, Response, NextFunction } from 'express';
 export const SECRET_KEY: Secret = 'salut1';
 
 export interface CustomRequest extends Request {
-    user: string | JwtPayload;
+    user?: string | JwtPayload;
 }
 
-export async function authMiddleware(req: Request, res: Response, next: NextFunction) {
+export async function authMiddleware(req: CustomRequest, res: Response, next: NextFunction) {
     try {
         const token = req.header('Authorization')?.replace('Bearer ', '');
 
@@ -17,14 +17,13 @@ export async function authMiddleware(req: Request, res: Response, next: NextFunc
 
         jwt.verify(token, SECRET_KEY, (err, user) => {
             if (err) {
-                return res.status(401).json({ message: 'Invalid token' });
+                return res.status(401).json({ error: 'Invalid token' });
             } else if (!user) {
-                return res.status(401).json({ message: 'User not found in token' });
+                return res.status(401).json({ error: 'User not found in token' });
             }
-            (req as CustomRequest).user = user;
+            req.user = user;
+            next();
         });
-
-        next();
     } catch (err) {
         res.status(401).send('Please authenticate');
     }

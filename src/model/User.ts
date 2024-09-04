@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 type UserRaw = {
     username: string;
@@ -9,12 +9,16 @@ type UserRaw = {
 export default class User {
     @PrimaryGeneratedColumn()
     id: number;
-    @Column()
+
+    @Column({ unique: true })
     username: string;
+
     @Column()
     password: string;
+
     @Column()
     createdAt: Date;
+
     @Column()
     updatedAt: Date;
 

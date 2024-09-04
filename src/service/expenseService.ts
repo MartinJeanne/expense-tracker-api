@@ -1,19 +1,31 @@
 import { Request, Response } from 'express';
 import { AppDataSource } from '../AppDataSource';
 import Expense from '../model/Expense';
+import { CustomRequest } from '../middleware/authMiddleware';
+import User from '../model/User';
+import { isJWTUser } from './authService';
 
 export async function getExpenses(req: Request, res: Response) {
     const expenseRepo = await AppDataSource.getRepository(Expense);
-    const expenses = await expenseRepo.find();
+    const expenses = await expenseRepo.find({ relations: { user: true } });
     res.send(expenses);
 }
 
-export async function postExpenses(req: Request, res: Response) {
+export async function postExpenses(req: CustomRequest, res: Response) {
     const body = req.body;
     if (!body) return res.send('No body');
     else if (!Expense.isRaw(body)) return res.send('Body not expense');
-    const newExpense = new Expense(body.description, body.amount);
 
+    if (!isJWTUser(req.user)) {
+        return res.send('Internal error, user in JWT is not right format (JWTUser)');
+    }
+    const userRepo = await AppDataSource.getRepository(User);
+    const user = await userRepo.findOneBy({ id: parseInt(req.user.id) });
+    if (!user) {
+        return res.send('Internal error, user in JWT was not found in databse');
+    }
+
+    const newExpense = new Expense(body.description, body.amount, user);
     const expenseRepo = await AppDataSource.getRepository(Expense);
     const saved = await expenseRepo.save(newExpense);
     res.send(saved);

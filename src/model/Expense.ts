@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import User from "./User";
 
 type ExpenseRaw = {
     description: string;
@@ -9,19 +10,28 @@ type ExpenseRaw = {
 export default class Expense {
     @PrimaryGeneratedColumn()
     id: number;
+
     @Column()
     description: string;
+
     @Column('double')
     amount: number;
+
+    @ManyToOne(() => User)
+    @JoinColumn()
+    user: User;
+
     @Column()
     createdAt: Date;
+
     @Column()
     updatedAt: Date;
 
-    constructor(description: string, amount: number) {
+    constructor(description: string, amount: number, user: User) {
         this.id = 0; // Managed by TypeORM
         this.description = description;
         this.amount = amount;
+        this.user = user;
         this.createdAt = new Date();
         this.updatedAt = new Date();
     }
