@@ -27,23 +27,15 @@ export async function putExpenses(req: Request, res: Response) {
     else if (!Expense.isRaw(body)) return res.send('Body is not expense');
 
     const expenseRepo = await AppDataSource.getRepository(Expense);
-    const toUpdate = await expenseRepo.findOneBy({ id: id });
-    if (!toUpdate) return res.send(`Expense not found with id: ${id}`);
-    /*toUpdate.description = body.description;
-    toUpdate.amount = body.amount;
-
-    const updated = await expenseRepo.save(toUpdate);
-    res.send(updated);*/
+    const updateData = await expenseRepo.update(id, { description: body.description, amount: body.amount });
+    if (updateData.affected === 0) return res.send(`No Expense found for id: ${id}`);
+    res.status(204).send();
 }
 
-
 export async function deleteExpenses(req: Request, res: Response) {
-    const body = req.body;
-    if (!body) return res.send('No body');
-    else if (!Expense.isRaw(body)) return res.send('Body not expense');
-    const newExpense = new Expense(body.description, body.amount);
-
+    const id = parseInt(req.params.id);
+    if (!id) return res.send('No id');
     const expenseRepo = await AppDataSource.getRepository(Expense);
-    const saved = await expenseRepo.save(newExpense);
-    res.send(saved);
+    const expenses = await expenseRepo.delete({ id: id });
+    res.status(204).send();
 }
