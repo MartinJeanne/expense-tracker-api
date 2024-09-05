@@ -6,7 +6,7 @@ import User from '../model/User';
 import { isJWTUser } from './authService';
 import { MoreThan } from 'typeorm';
 
-export async function getExpenses(req: Request, res: Response) {
+export async function getExpenses(req: CustomRequest, res: Response) {
     const fromLast = req.query.fromLast;
     const expenseRepo = await AppDataSource.getRepository(Expense);
 
@@ -19,7 +19,6 @@ export async function getExpenses(req: Request, res: Response) {
         const date = new Date();
         if (letter === 'w') date.setDate(date.getDate() - number * 7);
         else if (letter === 'm') date.setMonth(date.getMonth() - number);
-        console.log(number + ' ' + letter)
         expenses = await expenseRepo.findBy({ createdAt: MoreThan(date) });
     }
     else expenses = await expenseRepo.find();
@@ -32,7 +31,7 @@ export async function postExpenses(req: CustomRequest, res: Response) {
     else if (!Expense.isRaw(body)) return res.send('Body not expense');
 
     if (!req.user || !isJWTUser(req.user)) {
-        return res.send('Internal error, user in JWT is not right format (JWTUser)');
+        return res.send('Internal error, user in JWT is not present or not in right format (JWTUser)');
     }
     const userRepo = await AppDataSource.getRepository(User);
     const user = await userRepo.findOneBy({ id: parseInt(req.user.id) });
@@ -46,20 +45,28 @@ export async function postExpenses(req: CustomRequest, res: Response) {
     res.send(saved);
 }
 
-export async function putExpenses(req: Request, res: Response) {
+export async function putExpenses(req: CustomRequest, res: Response) {
     const id = parseInt(req.params.id);
     const body = req.body;
     if (!id) return res.send('No id');
     if (!body) return res.send('No body');
     else if (!Expense.isRaw(body)) return res.send('Body is not expense');
+    if (!req.user || !isJWTUser(req.user)) {
+        return res.send('Internal error, user in JWT is not present or not in right format (JWTUser)');
+    }
 
     const expenseRepo = await AppDataSource.getRepository(Expense);
-    const updateData = await expenseRepo.update(id, { description: body.description, amount: body.amount });
-    if (updateData.affected === 0) return res.send(`No Expense found for id: ${id}`);
-    res.status(204).send();
+    const expense = await expenseRepo.findOne({ where: { id: id }, relations: { user: true } });
+    if (!expense) return res.status(404).send();
+    if (parseInt(req.user.id) !== expense.user.id) return res.status(401).send();
+
+    expense.description = body.description;
+    expense.amount = body.amount;
+    const updatedExpense = await expenseRepo.save(expense);
+    res.send(updatedExpense);
 }
 
-export async function deleteExpenses(req: Request, res: Response) {
+export async function deleteExpenses(req: CustomRequest, res: Response) {
     const id = parseInt(req.params.id);
     if (!id) return res.send('No id');
     const expenseRepo = await AppDataSource.getRepository(Expense);
