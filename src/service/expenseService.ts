@@ -10,6 +10,10 @@ export async function getExpenses(req: CustomRequest, res: Response) {
     const fromLast = req.query.fromLast;
     const expenseRepo = await AppDataSource.getRepository(Expense);
 
+    if (!req.user || !isJWTUser(req.user))
+        return res.send('Internal error, user in JWT is not present or not in right format (JWTUser)');
+    const userId = parseInt(req.user.id);
+
     let regex = /\b(\d{1,2})([wm])\b/g;
     let match;
     let expenses;
@@ -19,9 +23,9 @@ export async function getExpenses(req: CustomRequest, res: Response) {
         const date = new Date();
         if (letter === 'w') date.setDate(date.getDate() - number * 7);
         else if (letter === 'm') date.setMonth(date.getMonth() - number);
-        expenses = await expenseRepo.findBy({ createdAt: MoreThan(date) });
+        expenses = await expenseRepo.find({ where: { createdAt: MoreThan(date), user: { id: userId } } });
     }
-    else expenses = await expenseRepo.find();
+    else expenses = await expenseRepo.find({ where: { user: { id: userId } } });
     res.send(expenses);
 }
 
@@ -48,12 +52,11 @@ export async function postExpenses(req: CustomRequest, res: Response) {
 export async function putExpenses(req: CustomRequest, res: Response) {
     const id = parseInt(req.params.id);
     const body = req.body;
-    if (!id) return res.send('No id');
-    if (!body) return res.send('No body');
-    else if (!Expense.isRaw(body)) return res.send('Body is not expense');
-    if (!req.user || !isJWTUser(req.user)) {
+    if (!id) return res.status(400).send('No id');
+    if (!body) return res.status(400).send('No body');
+    else if (!Expense.isRaw(body)) return res.status(400).send('Body is not expense');
+    if (!req.user || !isJWTUser(req.user))
         return res.send('Internal error, user in JWT is not present or not in right format (JWTUser)');
-    }
 
     const expenseRepo = await AppDataSource.getRepository(Expense);
     const expense = await expenseRepo.findOne({ where: { id: id }, relations: { user: true } });
@@ -69,7 +72,12 @@ export async function putExpenses(req: CustomRequest, res: Response) {
 export async function deleteExpenses(req: CustomRequest, res: Response) {
     const id = parseInt(req.params.id);
     if (!id) return res.send('No id');
+    if (!req.user || !isJWTUser(req.user))
+        return res.status(500).send('Internal error, user in JWT is not present or not in right format (JWTUser)');
+
+    const userId = parseInt(req.user.id);
     const expenseRepo = await AppDataSource.getRepository(Expense);
-    const expenses = await expenseRepo.delete({ id: id });
+    const deleteData = await expenseRepo.delete({ id: id, user: { id: userId } });
+    if (deleteData.affected === 0) return res.status(404).send();
     res.status(204).send();
 }
