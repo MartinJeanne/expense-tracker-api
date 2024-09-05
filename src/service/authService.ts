@@ -59,8 +59,10 @@ export async function getUserEntityFromReq(req: CustomRequest): Promise<User> {
 }
 
 export function getUserJWTFromReq(req: CustomRequest): UserJWT {
-    if (!req.user || !isUserJWT(req.user))
+    if (!req.user || !isUserJWT(req.user)) {
+        console.error(req.user);
         throw Error('Internal error, user in JWT is not present or not in right format (JWTUser)');
+    }
     return req.user;
 }
 
@@ -71,7 +73,7 @@ export function isUserJWT(value: unknown): value is UserJWT {
     const object = value as Record<string, unknown>;
 
     return (
-        typeof object.id === 'string' &&
+        typeof object.id === 'number' &&
         typeof object.username === 'string'
     )
 }

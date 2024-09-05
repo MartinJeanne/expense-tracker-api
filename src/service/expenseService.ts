@@ -1,16 +1,28 @@
 import { Response } from 'express';
 import { AppDataSource } from '../AppDataSource';
-import Expense from '../model/Expense';
+import Expense, { Category } from '../model/Expense';
 import { CustomRequest } from '../middleware/authMiddleware';
 import { getUserEntityFromReq, getUserJWTFromReq } from './authService';
-import { MoreThan } from 'typeorm';
+import { FindOperator, MoreThan } from 'typeorm';
+
+interface findBy {
+    where: { user: { id: number }, createAt?: Date | FindOperator<Date>, category?: Category }
+}
 
 export async function getExpenses(req: CustomRequest, res: Response) {
     const fromLast = req.query.fromLast;
     const startingDate = req.query.startingDate;
     const endingDate = req.query.endingDate;
+    const category = req.query.category;
     const expenseRepo = await AppDataSource.getRepository(Expense);
     const currentUser = getUserJWTFromReq(req);
+
+    const findBy: findBy = { where: { user: { id: currentUser.id } } };
+    if (category) {
+        if (!Expense.isCateogry(category))
+            return res.status(400).send(`Not a category: ${category}`);
+        findBy.where.category = category;
+    }
 
     let regex = /\b(\d{1,2})([wm])\b/g;
     let match;
@@ -21,9 +33,9 @@ export async function getExpenses(req: CustomRequest, res: Response) {
         const date = new Date();
         if (letter === 'w') date.setDate(date.getDate() - number * 7);
         else if (letter === 'm') date.setMonth(date.getMonth() - number);
-        expenses = await expenseRepo.find({ where: { createdAt: MoreThan(date), user: { id: currentUser.id } } });
+        findBy.where.createAt = MoreThan(date);
     }
-    else expenses = await expenseRepo.find({ where: { user: { id: currentUser.id } } });
+    expenses = await expenseRepo.find(findBy);
     res.send(expenses);
 }
 
