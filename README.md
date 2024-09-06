@@ -16,7 +16,7 @@ npm i
 ```
 
 ```
-npm run start
+npm start
 ```
 
 ## How to use
