@@ -1,4 +1,4 @@
-# expense-tracker
+# expense-tracker-api
 
 ## Info
 Follow your expenses with this REST API!\
