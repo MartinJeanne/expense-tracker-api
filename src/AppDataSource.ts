@@ -3,6 +3,12 @@ import { DataSource, EntityTarget, ObjectLiteral, Repository } from "typeorm";
 import Expense from './model/Expense';
 import User from "./model/User";
 
+const host = process.env.MYSQL_HOST || "localhost";
+const port = process.env.MYSQL_PORT && !Number.isNaN(parseInt(process.env.MYSQL_PORT)) ? parseInt(process.env.MYSQL_PORT) : 3306;
+const username = process.env.MYSQL_USER || "root";
+const password = process.env.MYSQL_PASSWORD || "root";
+const database = process.env.MYSQL_DB || "expense-tracker";
+
 export class AppDataSource {
     private static instance: AppDataSource;
 
@@ -11,11 +17,11 @@ export class AppDataSource {
     private constructor() {
         this.dataSource = new DataSource({
             type: "mysql",
-            host: "localhost",
-            port: 3306,
-            username: "root",
-            password: "root",
-            database: "expense-tracker",
+            host: host,
+            port: port,
+            username: username,
+            password: password,
+            database: database,
             entities: [Expense, User],
             synchronize: true,
             logging: false,
