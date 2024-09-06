@@ -6,8 +6,9 @@ Project to train my back-end skills. Made with Node.js and TypeScript.\
 This project idea comes from [Roadmap.sh](https://roadmap.sh/projects/expense-tracker-api)
 
 ## Run
-With Node.js on your PC, clone the project and:\
-Rename the file `.env.example` to `.env`. If you want you can modify the value of the JWT_SECRET in it.\
+With Node.js on your computer, clone the project and:\
+Make a MySQL database available locally.
+Rename the file `.env.example` to `.env`. If needed you can modify the value in it (settings for MySQL and JWT).\
 \
 Then execute these commands:
 ```
@@ -54,5 +55,5 @@ curl -X GET \
 -H 'Authorization: Bearer your_token_here' \
 http://localhost:3000/api/expenses
 ```
-The list of all availaible endpoints is available via the Swagger documentation in: `swagger.yml`.\
-You can copy and past the value of this file in the [swagger website](https://editor.swagger.io/)
+The list of all available endpoints is retrievable via the Swagger documentation in: `swagger.yml`.\
+You can copy and paste the value of this file in the [swagger website](https://editor.swagger.io/)
