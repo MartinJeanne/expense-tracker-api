@@ -24,9 +24,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}/auth/register",
+							"raw": "{{localhost}}/auth/register",
 							"host": [
-								"{{host}}"
+								"{{localhost}}"
 							],
 							"path": [
 								"auth",
@@ -57,7 +57,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"username\": \"martin\",\r\n    \"password\": \"martin\"\r\n}",
+							"raw": "{\r\n    \"username\": \"martin\",\r\n    \"password\": \"123\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -65,9 +65,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}/auth/login",
+							"raw": "{{localhost}}/auth/login",
 							"host": [
-								"{{host}}"
+								"{{localhost}}"
 							],
 							"path": [
 								"auth",
@@ -88,9 +88,9 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{host}}/expenses",
+							"raw": "{{localhost}}/expenses",
 							"host": [
-								"{{host}}"
+								"{{localhost}}"
 							],
 							"path": [
 								"expenses"
@@ -131,9 +131,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}/expenses",
+							"raw": "{{localhost}}/expenses",
 							"host": [
-								"{{host}}"
+								"{{localhost}}"
 							],
 							"path": [
 								"expenses"
@@ -157,9 +157,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}/expenses/:id",
+							"raw": "{{localhost}}/expenses/:id",
 							"host": [
-								"{{host}}"
+								"{{localhost}}"
 							],
 							"path": [
 								"expenses",
@@ -190,9 +190,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{host}}/expenses/:id",
+							"raw": "{{localhost}}/expenses/:id",
 							"host": [
-								"{{host}}"
+								"{{localhost}}"
 							],
 							"path": [
 								"expenses",
@@ -245,13 +245,8 @@
 	],
 	"variable": [
 		{
-			"key": "LOCAL_HOST",
+			"key": "localhost",
 			"value": "http://localhost:3000/api",
-			"type": "string"
-		},
-		{
-			"key": "VPS_HOST",
-			"value": "http://62.171.131.91:8080",
 			"type": "string"
 		}
 	]
