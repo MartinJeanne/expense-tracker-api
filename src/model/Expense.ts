@@ -1,7 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import User from "./User";
 
-type ExpenseRaw = {
+export type ExpenseRaw = {
     description: string;
     amount: number;
     category?: Category;

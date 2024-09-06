@@ -6,14 +6,13 @@ type ErrorResponse = {
     errorJSON: { error: string }
 }
 
-export default function globalErrorHandler(error: Error, req: Request, res: Response) {
+export default function globalErrorHandler(err: Error, req: Request, res: Response, next: Function) {
+    if (res.headersSent) return next(err);
+
     const response: ErrorResponse = { status: 500, errorJSON: { error: 'Unexpect error' } };
-    if (!(error instanceof Error)) {
-        return res.send(response.status).send(response.errorJSON);
+    if (err instanceof HTTPError) {
+        response.status = err.status;
+        response.errorJSON.error = err.message;
     }
-    else if (error instanceof HTTPError) {
-        response.status = error.status;
-        response.errorJSON.error = error.message;
-    }
-    res.send(response.status).send(response.errorJSON);
+    res.status(response.status).send(response.errorJSON);
 }

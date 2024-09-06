@@ -10,7 +10,7 @@ export async function authMiddleware(req: CustomRequest, res: Response, next: Ne
         const token = req.header('Authorization')?.replace('Bearer ', '');
 
         if (!token) {
-            return res.status(401).json({ message: 'No token provided' });
+            return res.status(401).json({ error: 'No token provided' });
         }
 
         const secret = process.env.JWT_SECRET;
@@ -27,6 +27,6 @@ export async function authMiddleware(req: CustomRequest, res: Response, next: Ne
             next();
         });
     } catch (err) {
-        res.status(401).send('Please authenticate');
+        res.status(401).send({ error: 'Please authenticate' });
     }
 };
