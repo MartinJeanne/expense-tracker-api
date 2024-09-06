@@ -17,13 +17,13 @@ export async function authMiddleware(req: CustomRequest, res: Response, next: Ne
 
         const secret = process.env.JWT_SECRET;
         if (typeof secret !== 'string')
-            throw new JWTError('Invalid JWT secret');
+            throw new JWTError('invalid JWT secret');
 
         jwt.verify(token, secret, (err, user) => {
             if (err) {
                 throw new UnauthorizedError('Invalid token provided');
             } else if (!user) {
-                throw new JWTError('User not found in token');
+                throw new JWTError('user not found in token');
             }
             req.user = user;
             next();

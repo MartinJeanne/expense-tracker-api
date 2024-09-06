@@ -5,12 +5,16 @@ import { login, register } from '../service/authService';
 const authController = express.Router();
 authController.use(bodyParser.json());
 
-authController.post('/register', async (req, res) => {
-    await register(req, res);
+authController.post('/register', async (req, res, next) => {
+    register(req)
+        .then(result => res.send(result))
+        .catch(next);
 });
 
-authController.post('/login', async (req, res) => {
-    await login(req, res);
+authController.post('/login', async (req, res, next) => {
+    await login(req)
+        .then(result => res.send(result))
+        .catch(next);
 });
 
 export default authController;

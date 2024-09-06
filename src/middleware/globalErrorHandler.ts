@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import HTTPError from '../error/HTTPError';
+import ServerError from '../error/serverError/ServerError';
 
 type ErrorResponse = {
     status: number,
@@ -14,5 +15,8 @@ export default function globalErrorHandler(err: Error, req: Request, res: Respon
         response.status = err.status;
         response.errorJSON.error = err.message;
     }
+    if (err instanceof ServerError)
+        console.error(err);
+
     res.status(response.status).send(response.errorJSON);
 }

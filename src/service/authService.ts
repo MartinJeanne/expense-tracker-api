@@ -4,38 +4,43 @@ import { AppDataSource } from '../AppDataSource';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { CustomRequest } from '../middleware/authMiddleware';
+import AlbreadyExistsError from '../error/clientError/AlbreadyExistsError';
+import BodyError from '../error/clientError/BodyError';
+import NotFoundError from '../error/clientError/NotFoundError';
+import JWTError from '../error/serverError/JWTError';
+import ExpectedInDatabaseError from '../error/serverError/ExpectedInDatabaseError';
 
 export type UserJWT = {
     id: number;
     username: string;
 }
 
-export async function register(req: Request, res: Response) {
+export async function register(req: Request) {
     const body = req.body;
-    if (!body) return res.send('No body');
-    else if (!User.isRaw(body)) return res.send('Body is not User');
+    if (!body) throw new BodyError('No body provided');
+    else if (!User.isRaw(body)) throw new BodyError('body is not in user format');
 
     const userRepo = await AppDataSource.getRepository(User);
     const foundUser = await userRepo.findOneBy({ username: body.username });
     if (foundUser) {
-        return res.send('A user with this username albready exist');
+        throw new AlbreadyExistsError('a user with this username');
     }
 
     const saltRounds = 8;
     const hashedPassword = await bcrypt.hash(body.password, saltRounds);
     const savedUser = await userRepo.save(new User(body.username, hashedPassword));
-    res.send(savedUser);
+    return savedUser;
 }
 
-export async function login(req: Request, res: Response) {
+export async function login(req: Request) {
     const body = req.body;
-    if (!body) return res.send('No body');
-    else if (!User.isRaw(body)) return res.send('Body is not User');
+    if (!body) throw new BodyError('No body provided');
+    else if (!User.isRaw(body)) throw new BodyError('body is not in user format');
 
     const userRepo = await AppDataSource.getRepository(User);
     const foundUser = await userRepo.findOneBy({ username: body.username });
     if (!foundUser) {
-        return res.send('Incorrect username');
+        throw new NotFoundError(`user with username: ${body.username}`);
     }
 
     const isMatch = bcrypt.compareSync(body.password, foundUser.password);
@@ -43,12 +48,12 @@ export async function login(req: Request, res: Response) {
         const user: UserJWT = { id: foundUser.id, username: foundUser.username };
         const secret = process.env.JWT_SECRET;
         if (typeof secret !== 'string')
-            throw new Error('Invalid JWT secret');
+            throw new JWTError('invalid JWT secret');
 
         const token = jwt.sign(user, secret, { expiresIn: '30min' });
-        res.send({ username: foundUser.username, token: token });
+        return { username: foundUser.username, token: token };
     } else {
-        return res.send('Password is not correct');
+        throw new BodyError('incorrect password');
     }
 }
 
@@ -57,15 +62,14 @@ export async function getUserEntityFromReq(req: CustomRequest): Promise<User> {
     const userRepo = await AppDataSource.getRepository(User);
     const user = await userRepo.findOneBy({ id: userJWT.id });
     if (!user) {
-        throw new Error('Internal error, user in JWT was not found in databse');
+        throw new ExpectedInDatabaseError(`user in JWT with id: ${userJWT.id}`);
     }
     return user;
 }
 
-export function getUserJWTFromReq(req: CustomRequest): UserJWT {
+function getUserJWTFromReq(req: CustomRequest): UserJWT {
     if (!req.user || !isUserJWT(req.user)) {
-        console.error(req.user);
-        throw Error('Internal error, user in JWT is not present or not in right format (JWTUser)');
+        throw new JWTError('user in JWT is not present or not in right format (JWTUser)');
     }
     return req.user;
 }
