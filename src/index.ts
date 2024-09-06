@@ -13,5 +13,5 @@ app.use('/api/auth', authController, globalErrorHandler);
 
 app.listen(port, async () => {
     await AppDataSource.getInstance(); // Init connection to DB
-    console.log(`API listening on port ${port}`);
+    console.log(`REST API listening on port: ${port}`);
 });
