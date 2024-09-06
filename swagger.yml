@@ -1,0 +1,184 @@
+openapi: 3.0.0
+info:
+  title: expense-tracker
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api
+security:
+  - bearerAuth: []
+tags:
+  - name: auth
+  - name: expenses
+paths:
+  /auth/register:
+    post:
+      tags:
+        - auth
+      summary: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                username: martin
+                password: martin
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                username: martin
+                password: martin
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /expenses:
+    get:
+      parameters:
+        - $ref: "#/components/parameters/category"
+        - $ref: "#/components/parameters/fromDate"
+        - $ref: "#/components/parameters/toDate"
+      tags:
+        - expenses
+      summary: expenses
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/expensesResponse"
+    post:
+      tags:
+        - expenses
+      summary: expenses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                description: new laptop
+                amount: 800
+                category: electronics
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /expenses/{id}:
+    put:
+      tags:
+        - expenses
+      summary: expenses/:id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                description: new laptop for gaming
+                amount: 950
+                category: electronics
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+          example: '1'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - expenses
+      summary: expenses/:id
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+          example: '1'
+      responses:
+        '204':
+          description: Successful response
+          content:
+            application/json: {}
+            
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      
+  parameters:
+    category:
+      in: query
+      name: category
+      required: false
+      schema:
+        type: string
+      description: "The category of the expense, which can be: other, groceries, leisure, electronics, utilities, clothing, health"
+      example: "electronics"
+    fromDate:
+      in: query
+      name: fromDate
+      required: false
+      schema:
+        type: string
+      description: "The starting date, which is the current date minus a number followed by a 'm' for month or 'w' for week"
+      example: "2m"
+    toDate:
+      in: query
+      name: toDate
+      required: false
+      schema:
+        type: string
+      description: "The ending date, which is the current date minus a number followed by a 'm' for month or 'w' week"
+      example: "4w"
+  
+  
+  schemas:
+    expensesResponse:
+      type: array
+      items:
+        $ref: "#/components/schemas/expenseResponse"
+  
+    expenseResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+        description:
+          type: string
+        amount:
+          type: integer
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      example:
+        id: 1
+        description: "food for the kids"
+        amount: 100
+        category: "groceries"
+        createdAt: "2024-09-06T20:02:06.000Z"
+        updatedAt: "2024-09-06T20:02:06.000Z"
