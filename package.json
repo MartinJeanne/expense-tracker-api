@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
-    "start": "npx tsc && node dist/index.js",
+    "start": "npx tsc && node --env-file=.env dist/index.js",
     "build": "npx tsc",
-    "dev": "nodemon src/index.ts",
+    "dev": "nodemon --exec node -r ts-node/register --env-file=.env src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "bin": {

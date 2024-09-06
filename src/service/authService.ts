@@ -41,7 +41,11 @@ export async function login(req: Request, res: Response) {
     const isMatch = bcrypt.compareSync(body.password, foundUser.password);
     if (isMatch) {
         const user: UserJWT = { id: foundUser.id, username: foundUser.username };
-        const token = jwt.sign(user, 'salut1', { expiresIn: '30min' });
+        const secret = process.env.JWT_SECRET;
+        if (typeof secret !== 'string')
+            throw new Error('Invalid JWT secret');
+
+        const token = jwt.sign(user, secret, { expiresIn: '30min' });
         res.send({ username: foundUser.username, token: token });
     } else {
         return res.send('Password is not correct');

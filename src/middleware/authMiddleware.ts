@@ -1,8 +1,6 @@
 import jwt, { Secret, JwtPayload } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 
-export const SECRET_KEY: Secret = 'salut1';
-
 export interface CustomRequest extends Request {
     user?: string | JwtPayload;
 }
@@ -15,7 +13,11 @@ export async function authMiddleware(req: CustomRequest, res: Response, next: Ne
             return res.status(401).json({ message: 'No token provided' });
         }
 
-        jwt.verify(token, SECRET_KEY, (err, user) => {
+        const secret = process.env.JWT_SECRET;
+        if (typeof secret !== 'string')
+            throw new Error('Invalid JWT secret');
+
+        jwt.verify(token, secret, (err, user) => {
             if (err) {
                 return res.status(401).json({ error: 'Invalid token' });
             } else if (!user) {
