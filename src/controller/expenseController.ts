@@ -30,6 +30,4 @@ expenseController.delete('/:id', async (req, res, next) => {
         .catch(next);
 });
 
-expenseController.use(globalErrorHandler);
-
 export default expenseController;
