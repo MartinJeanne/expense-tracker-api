@@ -12,7 +12,7 @@ export enum Category {
     groceries = 'groceries',
     leisure = 'leisure',
     electronics = 'electronics',
-    utilities = 'utilies',
+    utilities = 'utilities',
     clothing = 'clothing',
     health = 'health'
 }
