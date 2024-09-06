@@ -29,7 +29,7 @@ Otherwise, you can use curl (for example) to manipulate the endpoints while pass
 The list of all available endpoints can be accessed via the Swagger documentation in: `documentation/swagger.yml`\
 You can copy and paste the value of this file in the [Swagger website](https://editor.swagger.io/)\
 \
-Before testing any endpoints, you'll need to register with the **register** one:\
+Before testing any endpoints, you'll need to register with the **register** one.\
 Example:
 ```bash
 curl -X POST \
