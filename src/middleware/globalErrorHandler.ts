@@ -4,19 +4,20 @@ import ServerError from '../error/serverError/ServerError';
 
 type ErrorResponse = {
     status: number,
-    errorJSON: { error: string }
+    errorJSON: { error: string, details?: Error }
 }
 
 export default function globalErrorHandler(err: Error, req: Request, res: Response, next: Function) {
     if (res.headersSent) return next(err);
 
-    const response: ErrorResponse = { status: 500, errorJSON: { error: 'Unexpect error' } };
+    const error: ErrorResponse = { status: 500, errorJSON: { error: 'An error occured', details: err } };
     if (err instanceof HTTPError) {
-        response.status = err.status;
-        response.errorJSON.error = err.message;
+        error.status = err.status;
+        error.errorJSON.error = err.message;
+        delete error.errorJSON.details;
     }
     if (err instanceof ServerError)
         console.error(err);
 
-    res.status(response.status).send(response.errorJSON);
+    res.status(error.status).send(error.errorJSON);
 }
