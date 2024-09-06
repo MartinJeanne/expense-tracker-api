@@ -35,13 +35,13 @@ export async function login(req: Request, res: Response) {
     const userRepo = await AppDataSource.getRepository(User);
     const foundUser = await userRepo.findOneBy({ username: body.username });
     if (!foundUser) {
-        return res.send('Name of user is not correct');
+        return res.send('Incorrect username');
     }
 
     const isMatch = bcrypt.compareSync(body.password, foundUser.password);
     if (isMatch) {
         const user: UserJWT = { id: foundUser.id, username: foundUser.username };
-        const token = jwt.sign(user, 'salut1', { expiresIn: '1d', });
+        const token = jwt.sign(user, 'salut1', { expiresIn: '30min' });
         res.send({ username: foundUser.username, token: token });
     } else {
         return res.send('Password is not correct');
