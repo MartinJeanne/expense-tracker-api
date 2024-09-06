@@ -4,6 +4,7 @@ import User from "./User";
 type ExpenseRaw = {
     description: string;
     amount: number;
+    category?: Category;
 };
 
 export enum Category {
@@ -59,7 +60,8 @@ export default class Expense {
 
         return (
             typeof object.description === 'string' &&
-            typeof object.amount === 'number'
+            typeof object.amount === 'number' &&
+            !object.category || this.isCateogry(object.category)
         )
     }
 

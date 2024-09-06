@@ -3,20 +3,24 @@ import { AppDataSource } from '../AppDataSource';
 import Expense, { Category } from '../model/Expense';
 import { CustomRequest } from '../middleware/authMiddleware';
 import { getUserEntityFromReq, getUserJWTFromReq } from './authService';
-import { FindOperator, MoreThan } from 'typeorm';
+import { Between, FindOperator, LessThan, MoreThan } from 'typeorm';
 
 interface findBy {
-    where: { user: { id: number }, createAt?: Date | FindOperator<Date>, category?: Category }
+    where: {
+        user: { id: number },
+        createdAt?: Date | FindOperator<Date>,
+        category?: Category
+    }
 }
 
 export async function getExpenses(req: CustomRequest, res: Response) {
-    const fromLast = req.query.fromLast;
-    const startingDate = req.query.startingDate;
-    const endingDate = req.query.endingDate;
+    const fromDate = toDateObject(req.query.fromDate);
+    const toDate = toDateObject(req.query.toDate);
     const category = req.query.category;
     const expenseRepo = await AppDataSource.getRepository(Expense);
     const currentUser = getUserJWTFromReq(req);
 
+    // category
     const findBy: findBy = { where: { user: { id: currentUser.id } } };
     if (category) {
         if (!Expense.isCateogry(category))
@@ -24,19 +28,27 @@ export async function getExpenses(req: CustomRequest, res: Response) {
         findBy.where.category = category;
     }
 
-    let regex = /\b(\d{1,2})([wm])\b/g;
-    let match;
-    let expenses;
-    if (fromLast && typeof fromLast === 'string' && (match = regex.exec(fromLast)) !== null) {
-        const number = parseInt(match[1]);
-        const letter = match[2]
-        const date = new Date();
-        if (letter === 'w') date.setDate(date.getDate() - number * 7);
-        else if (letter === 'm') date.setMonth(date.getMonth() - number);
-        findBy.where.createAt = MoreThan(date);
-    }
-    expenses = await expenseRepo.find(findBy);
+    // date
+    if (fromDate && toDate) findBy.where.createdAt = Between(fromDate, toDate);
+    else if (fromDate) findBy.where.createdAt = MoreThan(fromDate);
+    else if (toDate) findBy.where.createdAt = LessThan(toDate);
+
+    const expenses = await expenseRepo.find(findBy);
     res.send(expenses);
+}
+
+function toDateObject<T>(value: T): Date | null {
+    const regex = /\b(\d{1,2})([wm])\b/g;
+    let match;
+    if (!value || typeof value !== 'string' || (match = regex.exec(value)) === null)
+        return null;
+
+    const number = parseInt(match[1]);
+    const letter = match[2]
+    const date = new Date();
+    if (letter === 'w') date.setDate(date.getDate() - number * 7);
+    else if (letter === 'm') date.setMonth(date.getMonth() - number);
+    return date
 }
 
 export async function postExpenses(req: CustomRequest, res: Response) {
@@ -46,6 +58,8 @@ export async function postExpenses(req: CustomRequest, res: Response) {
 
     const user = await getUserEntityFromReq(req);
     const newExpense = new Expense(body.description, body.amount, user);
+    if (body.category) newExpense.category = body.category;
+
     const expenseRepo = await AppDataSource.getRepository(Expense);
     const saved = await expenseRepo.save(newExpense);
     res.send(saved);
@@ -66,6 +80,7 @@ export async function putExpenses(req: CustomRequest, res: Response) {
 
     expense.description = body.description;
     expense.amount = body.amount;
+    if (body.category) expense.category = body.category;
     const updatedExpense = await expenseRepo.save(expense);
     res.send(updatedExpense);
 }
