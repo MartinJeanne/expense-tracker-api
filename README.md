@@ -55,6 +55,6 @@ Example of the GET endpoint:
 ```bash
 curl -X GET \
 -H 'Content-Type: application/json' \
--H 'Authorization: Bearer your_token_here' \
+-H 'Authorization: Bearer <token_value_here>' \
 http://localhost:3000/api/expenses
 ```
