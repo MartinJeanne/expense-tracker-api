@@ -56,11 +56,12 @@ export async function postExpenses(req: CustomRequest) {
 }
 
 export async function putExpenses(req: CustomRequest) {
-    const id = parseInt(req.params.id);
+    const idSTR = req.params.id;
     const body = req.body;
-    if (!id) throw new PathParamError('no ID provided');
+    if (!idSTR) throw new PathParamError('no ID provided');
     if (!body) throw new BodyError('no body provided');
     else if (!Expense.isRaw(body)) throw new BodyError('body is not in expense format');
+    const id = parseInt(idSTR);
     const currentUser = await getUserEntityFromReq(req);
 
     const expenseRepo = await AppDataSource.getRepository(Expense);
@@ -76,8 +77,8 @@ export async function putExpenses(req: CustomRequest) {
 }
 
 export async function deleteExpenses(req: CustomRequest) {
+    if (!req.params.id) throw new PathParamError('no ID provided');
     const id = parseInt(req.params.id);
-    if (!id) throw new PathParamError('no ID provided');
     const currentUser = await getUserEntityFromReq(req);
 
     const userId = currentUser.id;
@@ -91,9 +92,11 @@ function toDateObject<T>(value: T): Date | null {
     let match;
     if (!value || typeof value !== 'string' || (match = regex.exec(value)) === null)
         return null;
-
-    const number = parseInt(match[1]);
-    const letter = match[2]
+    if (!match[1] || match[2]) 
+        return null;
+    
+    const number = parseInt(match[1])
+    const letter = match[2];
     const date = new Date();
     if (letter === 'w') date.setDate(date.getDate() - number * 7);
     else if (letter === 'm') date.setMonth(date.getMonth() - number);
